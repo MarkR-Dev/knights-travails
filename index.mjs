@@ -51,7 +51,58 @@ function buildGraph() {
 // knightMoves([0,0], [3,3])
 // Returns array of the path co-ords, start and end inclusive, [[0,0], [1,2], [3,3]]
 // Sometimes there will be more than 1 solution, all are correct as long as it has the same least amount of moves
+// function knightMoves(startPos, endPos) {
+//   const graph = buildGraph();
+//   const queue = [];
+//   const visited = [];
+// }
+
 function knightMoves(startPos, endPos) {
   const graph = buildGraph();
   const queue = [];
+  const visited = [];
+
+  queue.push([startPos, null]);
+
+  while (queue.length) {
+    const pos = queue.shift();
+    visited.push(pos);
+
+    if (pos[0][0] === endPos[0] && pos[0][1] === endPos[1]) {
+      const result = [];
+      let current = pos[0];
+      let prev = pos[1];
+      result.push(current);
+
+      while (prev) {
+        result.unshift(prev);
+        const t = visited.find(
+          (item) => item[0][0] === prev[0] && item[0][1] === prev[1]
+        );
+        prev = t[1];
+      }
+
+      console.log(`Travelling from ${startPos} to ${endPos}...`);
+      console.log(`You made it in ${result.length - 1} moves!`);
+      console.log(`Your path is:`);
+      for (let i = 0; i < result.length; i++) {
+        console.log(result[i]);
+      }
+
+      return;
+    }
+
+    const validMoves = graph[pos[0][0] + pos[0][1] * 8];
+
+    validMoves.forEach((move) => {
+      const hasVisited = visited.find(
+        (item) => item[0] === move[0] && item[1] === move[1]
+      );
+
+      if (!hasVisited) {
+        queue.push([move, pos[0]]);
+      }
+    });
+  }
 }
+knightMoves([3, 3], [4, 3]);
