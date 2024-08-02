@@ -48,61 +48,69 @@ function buildGraph() {
   return graph;
 }
 
-// knightMoves([0,0], [3,3])
-// Returns array of the path co-ords, start and end inclusive, [[0,0], [1,2], [3,3]]
-// Sometimes there will be more than 1 solution, all are correct as long as it has the same least amount of moves
-// function knightMoves(startPos, endPos) {
-//   const graph = buildGraph();
-//   const queue = [];
-//   const visited = [];
-// }
-
+// Uses BFS
+// There can be multiple valid solutions, any are acceptable providing they return the shortest possible path
+// Start and end position inclusive
 function knightMoves(startPos, endPos) {
   const graph = buildGraph();
   const queue = [];
   const visited = [];
 
-  queue.push([startPos, null]);
+  // Push an object into the queue that has current position and its previous move
+  queue.push({ position: startPos, prev: null });
 
+  // Search for the target endPos square and use an array to keep track of all the squares visited, not allowing duplictes means we only need to find a square to get its previous move, a while loop allows us to trace the route back through all previous moves
   while (queue.length) {
-    const pos = queue.shift();
-    visited.push(pos);
+    const currentPos = queue.shift();
+    visited.push(currentPos);
 
-    if (pos[0][0] === endPos[0] && pos[0][1] === endPos[1]) {
-      const result = [];
-      let current = pos[0];
-      let prev = pos[1];
-      result.push(current);
+    // Once we find the target end square begin building the path
+    if (
+      currentPos.position[0] === endPos[0] &&
+      currentPos.position[1] === endPos[1]
+    ) {
+      const shortestPath = [];
+      shortestPath.push(currentPos.position);
+      let previousMove = currentPos.prev;
 
-      while (prev) {
-        result.unshift(prev);
-        const t = visited.find(
-          (item) => item[0][0] === prev[0] && item[0][1] === prev[1]
-        );
-        prev = t[1];
+      while (previousMove) {
+        shortestPath.unshift(previousMove);
+        previousMove = visited.find(
+          (visitedPos) =>
+            visitedPos.position[0] === previousMove[0] &&
+            visitedPos.position[1] === previousMove[1]
+        ).prev;
       }
 
       console.log(`Travelling from ${startPos} to ${endPos}...`);
-      console.log(`You made it in ${result.length - 1} moves!`);
+      console.log(
+        `You made it in ${shortestPath.length - 1} ${
+          shortestPath.length - 1 === 1 ? "move" : "moves"
+        }!`
+      );
       console.log(`Your path is:`);
-      for (let i = 0; i < result.length; i++) {
-        console.log(result[i]);
+      for (let i = 0; i < shortestPath.length; i++) {
+        console.log(shortestPath[i]);
       }
-
-      return;
+      return shortestPath;
     }
 
-    const validMoves = graph[pos[0][0] + pos[0][1] * 8];
+    // If we haven't visited the end square yet, get all valid board moves from the current position and add them to the queue
+    const validMoves =
+      graph[currentPos.position[0] + currentPos.position[1] * 8];
 
     validMoves.forEach((move) => {
       const hasVisited = visited.find(
-        (item) => item[0] === move[0] && item[1] === move[1]
+        (visitedPos) =>
+          visitedPos.position[0] === move[0] &&
+          visitedPos.position[1] === move[1]
       );
 
       if (!hasVisited) {
-        queue.push([move, pos[0]]);
+        queue.push({ position: move, prev: currentPos.position });
       }
     });
   }
 }
-knightMoves([3, 3], [4, 3]);
+
+knightMoves([0, 0], [3, 3]);
