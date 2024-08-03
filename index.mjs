@@ -113,4 +113,4 @@ function knightMoves(startPos, endPos) {
   }
 }
 
-knightMoves([0, 0], [3, 3]);
+knightMoves([1, 3], [5, 0]);
